@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full Project Implementation</title>
+  <style>
+    body{margin:0;font-family:sans-serif;background:#f5f5f5;color:#333}
+    header{background:#2563eb;color:#fff;padding:15px;text-align:center}
+    nav a{color:#fff;margin:0 10px;text-decoration:none;font-weight:bold}
+    nav a:hover{text-decoration:underline}
+    section{padding:40px;max-width:1000px;margin:auto}
+    h2{color:#2563eb;margin-bottom:10px}
+    .card{background:#fff;padding:20px;margin:10px 0;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+    input,textarea,select{width:100%;padding:8px;margin:5px 0;border:1px solid #ccc;border-radius:6px}
+    button{background:#2563eb;color:#fff;padding:8px 14px;border:none;border-radius:6px;cursor:pointer;margin-top:6px}
+    button:hover{background:#1e40af}
+    /* To-do */
+    .todo-item{display:flex;justify-content:space-between;align-items:center;padding:6px;border:1px solid #ddd;border-radius:6px;margin-top:6px}
+    .completed{text-decoration:line-through;opacity:.6}
+    /* Product Grid */
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px}
+    .product{background:#fff;padding:15px;border:1px solid #ddd;border-radius:6px;text-align:center}
+    .filters{margin:10px 0}
+    @media(max-width:768px){section{padding:20px}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>My Portfolio Website</h1>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+    <a href="#todo">To-Do App</a>
+    <a href="#products">Products</a>
+  </nav>
+</header>
+
+<!-- About Section -->
+<section id="about">
+  <h2>About Me</h2>
+  <div class="card">
+    <p>Hello! I am learning web development. This portfolio showcases my projects and skills in HTML, CSS, and JavaScript.</p>
+  </div>
+</section>
+
+<!-- Projects Section -->
+<section id="projects">
+  <h2>Projects</h2>
+  <div class="card">
+    <h3>Portfolio Website</h3>
+    <p>Responsive personal portfolio site built with HTML, CSS, and JavaScript.</p>
+  </div>
+  <div class="card">
+    <h3>To-Do App with Local Storage</h3>
+    <p>Tasks are saved in the browser and persist even after reload.</p>
+  </div>
+  <div class="card">
+    <h3>Product Page with Filtering</h3>
+    <p>Interactive product catalog with filter and sort features.</p>
+  </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact">
+  <h2>Contact</h2>
+  <div class="card">
+    <form>
+      <input type="text" placeholder="Your Name">
+      <input type="email" placeholder="Your Email">
+      <textarea placeholder="Message"></textarea>
+      <button type="submit">Send</button>
+    </form>
+  </div>
+</section>
+
+<!-- To-Do List with Local Storage -->
+<section id="todo">
+  <h2>To-Do List (with Local Storage)</h2>
+  <input id="todo-input" placeholder="Add a task...">
+  <button onclick="addTodo()">Add</button>
+  <ul id="todo-list"></ul>
+</section>
+
+<!-- Product Page with Filtering and Sorting -->
+<section id="products">
+  <h2>Products</h2>
+  <div class="filters">
+    <label>Category: 
+      <select id="filter-category" onchange="renderProducts()">
+        <option value="all">All</option>
+        <option value="tech">Tech</option>
+        <option value="clothing">Clothing</option>
+      </select>
+    </label>
+    <label>Sort by:
+      <select id="sort" onchange="renderProducts()">
+        <option value="default">Default</option>
+        <option value="price">Price</option>
+        <option value="rating">Rating</option>
+      </select>
+    </label>
+  </div>
+  <div class="grid" id="product-grid"></div>
+</section>
+
+<script>
+// --- To-Do App with Local Storage ---
+let todos = JSON.parse(localStorage.getItem("todos")) || [];
+const list = document.getElementById("todo-list");
+
+function renderTodos() {
+  list.innerHTML = "";
+  todos.forEach((t, i) => {
+    list.innerHTML += `<li class="todo-item ${t.done?'completed':''}" onclick="toggle(${i})">${t.text}
+      <button onclick="del(${i});event.stopPropagation()">X</button></li>`;
+  });
+  localStorage.setItem("todos", JSON.stringify(todos));
+}
+function addTodo() {
+  const inp = document.getElementById("todo-input");
+  if (inp.value) {
+    todos.push({ text: inp.value, done: false });
+    inp.value = "";
+    renderTodos();
+  }
+}
+function toggle(i) {
+  todos[i].done = !todos[i].done;
+  renderTodos();
+}
+function del(i) {
+  todos.splice(i, 1);
+  renderTodos();
+}
+renderTodos();
+
+// --- Product Page with Filtering and Sorting ---
+const products = [
+  {name:"Laptop",category:"tech",price:800,rating:4.5},
+  {name:"Smartphone",category:"tech",price:600,rating:4.2},
+  {name:"T-Shirt",category:"clothing",price:20,rating:4.0},
+  {name:"Jeans",category:"clothing",price:40,rating:4.3},
+  {name:"Headphones",category:"tech",price:100,rating:4.7},
+];
+function renderProducts() {
+  const grid = document.getElementById("product-grid");
+  const cat = document.getElementById("filter-category").value;
+  const sort = document.getElementById("sort").value;
+  let filtered = products.filter(p=> cat==="all" ? true : p.category===cat);
+  if (sort==="price") filtered.sort((a,b)=>a.price-b.price);
+  if (sort==="rating") filtered.sort((a,b)=>b.rating-a.rating);
+  grid.innerHTML = filtered.map(p=>`
+    <div class="product">
+      <h3>${p.name}</h3>
+      <p>Category: ${p.category}</p>
+      <p>Price: $${p.price}</p>
+      <p>Rating: ⭐ ${p.rating}</p>
+    </div>`).join("");
+}
+renderProducts();
+</script>
+</body>
+</html>
